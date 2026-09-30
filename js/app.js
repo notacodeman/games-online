@@ -47,7 +47,7 @@ function showHome(message) {
   root.replaceChildren(el('div.home', {},
     el('section.hero', {},
       el('h1', {}, 'Games'),
-      el('p.tagline', {}, 'Card and party games to play with friends in the browser. No accounts, no installs.'),
+      el('p.tagline', {}, 'Pull up a stool. Card and party games with friends, right in the browser: no accounts, no installs.'),
       message ? el('p.notice', {}, message) : null,
     ),
     el('div.home-top', {},

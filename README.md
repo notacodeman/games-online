@@ -59,7 +59,7 @@ Plain HTML, CSS and JavaScript (ES modules) with no build step.
 |---|---|
 | `index.html` | The page: banner, the screen area, footer |
 | `_headers` | Security headers for every page (Content-Security-Policy and friends) |
-| `css/style.css` | All styles. Colors and fonts match codeman.club |
+| `css/style.css` | All styles. Old-time tavern theme: wood, brass, green felt, paper cards (tokens at the top) |
 | `js/app.js` | Start page (join by code, public games, create a lobby, practice) and switching screens; `?g=CODE` in the URL |
 | `js/games.js` | The page's list of games: each one's table, extra lobby section and how-to-play notes |
 | `js/lobby.js` | The lobby (invite link, public/private, players, bots, start) and the rules form |

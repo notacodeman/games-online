@@ -104,6 +104,7 @@ function showHome(message) {
     $('.visibility-note', root).textContent = isPublic
       ? 'Public: listed under Public games so anyone can join. You can change this in the lobby.'
       : 'Private: only people with the code or link can join. You can change this in the lobby.';
+    $('.practice', root).hidden = !info.practice;
     const saved = store.get('bots', 3);
     $('#bots', root).replaceChildren(...Array.from({ length: info.maxPlayers - 1 }, (_, i) =>
       el('option', { value: i + 1, selected: i + 1 === saved }, `${i + 1} bot${i ? 's' : ''}`)));

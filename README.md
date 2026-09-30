@@ -15,6 +15,13 @@ drawn card, draw until playable, the Last card! penalty, stacking +2/+4, 7-0 han
 It's called Last Card with its own neon card design rather than using the UNO name and look, which are Mattel
 trademarks.
 
+**Spy Words**: the team word-clue game (Codenames-style), 2–16 players. Two teams, a 5×5 board; each team's
+spymaster sees the secret key and gives one-word clues with a number, and operatives pick cards (tap to point so
+teammates see, tap again to pick). With 2–3 people everyone plays on red and blue is played automatically, the
+official small-group rule. House rules: 1–3 assassins, strict or honor-system clue check, a turn timer. No bots
+(clues need a person), so no practice mode. The words are Cody's list in `lib/spy-words/words.js`; one word per
+entry, capitals, spaces allowed.
+
 **Sounds:** a soft tick every time a turn ends, a chime when it's your turn, plus card, draw, Last card!, caught and
 round-over sounds. Made with the Web Audio API (no sound files). The Sound on/off button in the banner is remembered.
 
@@ -25,7 +32,8 @@ round-over sounds. Made with the Web Audio API (no sound files). The Sound on/of
    `setRules`, `start`, `leave`, `playAgain`. Throw `GameError` (`lib/errors.js`) for refused moves.
 2. Its rule options in `lib/<id>/rules.js` (same shape as `lib/last-card/rules.js`).
 3. Its table in `js/<id>/table.js` (same signature as `js/last-card/table.js`).
-4. Add it to `lib/games.js` and `js/games.js`. The lobby, public list, practice mode and API pick it up from there.
+4. Add it to `lib/games.js` (with `bots` and `practice` true or false) and `js/games.js` (plus a lobby section
+   in `LOBBY_PANELS` if it needs one, like Spy Words' teams). The lobby, public list, practice mode and API pick it up from there.
 
 ## How it works
 
@@ -53,7 +61,7 @@ Plain HTML, CSS and JavaScript (ES modules) with no build step.
 | `_headers` | Security headers for every page (Content-Security-Policy and friends) |
 | `css/style.css` | All styles. Colors and fonts match codeman.club |
 | `js/app.js` | Start page (join by code, public games, create a lobby, practice) and switching screens; `?g=CODE` in the URL |
-| `js/games.js` | The page's list of games: each one's table and how-to-play notes |
+| `js/games.js` | The page's list of games: each one's table, extra lobby section and how-to-play notes |
 | `js/lobby.js` | The lobby (invite link, public/private, players, bots, start) and the rules form |
 | `js/online.js` | An online game: polling and sending moves |
 | `js/practice.js` | A practice game run in the browser, for any game |
@@ -62,12 +70,16 @@ Plain HTML, CSS and JavaScript (ES modules) with no build step.
 | `js/util.js` | DOM helper, API calls, browser storage, toasts |
 | `js/last-card/table.js` | Last Card's table: seats, piles, your hand, status and buttons, round results, log, which sound to play |
 | `js/last-card/cards.js` | Drawing a Last Card card face or back |
+| `js/spy-words/table.js` | Spy Words' table (score, clue, board, teams, log) and its lobby section for teams and spymasters |
 | `lib/games.js` | Every game on the site: name, blurb, player counts, engine, rules |
 | `lib/room.js` | What the site adds around a game: which game, public or private, the list summary |
 | `lib/errors.js` | `GameError`: a refused move, shown to the player |
 | `lib/last-card/game.js` | Last Card's engine: deck, moves, card effects, scoring, bots' timing, each player's view |
 | `lib/last-card/bot.js` | How Last Card bots choose their moves |
 | `lib/last-card/rules.js` | Last Card's rule options, their official values and notes |
+| `lib/spy-words/game.js` | Spy Words' engine: teams, dealing the board and key, clues, guesses, the automatic team, each player's view |
+| `lib/spy-words/rules.js` | Spy Words' rule options |
+| `lib/spy-words/words.js` | The word list |
 | `lib/store.js` | Games in D1: codes, tokens, load/save with version checks, the public list, the clear-out |
 | `lib/limits.js` | Rate limits kept in D1 |
 | `lib/api.js` | JSON response helpers for the Functions |

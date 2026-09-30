@@ -2,7 +2,7 @@
 // shares with practice mode on the start page. Works for any game in lib/games.js.
 
 import { el, $, toast } from './util.js';
-import { GAMES } from './games.js';
+import { GAMES, LOBBY_PANELS } from './games.js';
 
 const officialLabel = option => option.choices.find(([v]) => v === option.official)[1].toLowerCase();
 
@@ -59,6 +59,7 @@ export function showLobby(root, game, { onStart, onLeave }) {
       el('div.visibility'),
     ),
     el('section.panel.players', {}, el('h2', {}, 'Players'), el('ul.player-list'), el('div.host-buttons')),
+    LOBBY_PANELS[info.id] ? el('section.panel.game-panel') : null,
     el('section.panel.rules', {}, el('h2', {}, 'Rules'), el('div.rules-box')),
   ));
 
@@ -101,10 +102,13 @@ export function showLobby(root, game, { onStart, onLeave }) {
     const count = view.players.length;
     $('.host-buttons', root).replaceChildren(isHost
       ? el('div.buttons', {},
-        el('button', { type: 'button', disabled: count >= info.maxPlayers, onclick: () => send({ type: 'addBot' }) }, 'Add a bot'),
+        info.bots ? el('button', { type: 'button', disabled: count >= info.maxPlayers, onclick: () => send({ type: 'addBot' }) }, 'Add a bot') : null,
         el('button.primary', { type: 'button', disabled: count < info.minPlayers, onclick: () => send({ type: 'start' }) },
           count < info.minPlayers ? 'Waiting for players…' : `Start with ${count}`))
       : el('p.muted', {}, me ? `Waiting for ${hostName} to start.` : 'This game hasn’t started yet.'));
+
+    // a game's own lobby section (Spy Words: teams and spymasters)
+    if (LOBBY_PANELS[info.id]) $('.game-panel', root).replaceChildren(...LOBBY_PANELS[info.id](view, send).filter(Boolean));
 
     const key = JSON.stringify(view.rules);
     if (key !== rulesVersion) {

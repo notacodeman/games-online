@@ -80,7 +80,7 @@ Plain HTML, CSS and JavaScript (ES modules) with no build step.
 
 ## Setup (Cloudflare Pages)
 
-1. Create a GitHub repo `games` and push this folder.
+1. Create a GitHub repo `games-online` and push this folder.
 2. Cloudflare dashboard → Workers & Pages → Create → Pages → connect the repo. No build command, output directory `/`.
 3. Storage & Databases → D1 → create a database (e.g. `games`). Open its Console, paste `functions/schema.sql`, run it.
 4. In the Pages project: Settings → Bindings → add a D1 database binding named `DB` pointing at it. Redeploy.

@@ -272,6 +272,11 @@ h3 { margin: 0 0 0.5rem; font-family: var(--font-head); font-size: 1rem; font-we
 .rule.house select { border-color: var(--brass-soft); }
 .rule .note { font-size: 0.85rem; color: var(--muted); margin: 0.5rem 0 0; }
 .rules-form > button.link { justify-self: start; }
+/* the less-used rules, folded away under the main ones */
+.more-rules { grid-column: 1 / -1; }
+.more-rules summary { cursor: pointer; color: var(--muted); }
+.more-rules[open] summary { margin-bottom: 0.8rem; }
+.rules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); gap: 0.9rem 1rem; }
 
 /* ---- Lobby ---- */
 .lobby { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
@@ -291,9 +296,15 @@ h3 { margin: 0 0 0.5rem; font-family: var(--font-head); font-size: 1rem; font-we
   margin: 0.2rem 0 0.4rem;
 }
 .player-list { list-style: none; margin: 0 0 1rem; padding: 0; }
-.player-list li { display: flex; align-items: center; padding: 0.45rem 0; border-bottom: 1px solid rgba(90, 61, 34, 0.7); }
+.player-list li { display: flex; flex-wrap: wrap; align-items: center; row-gap: 0.3rem; padding: 0.45rem 0; border-bottom: 1px solid rgba(90, 61, 34, 0.7); }
 .player-list li .name { overflow-wrap: anywhere; }
 .player-list li button { margin-left: auto; }
+/* bot levels: in the player list, next to Add a bot, and in practice */
+.player-list li select.bot-level { width: auto; margin-left: auto; padding: 0.15rem 0.4rem; font-size: 0.85rem; }
+.player-list li select.bot-level + button { margin-left: 0.6rem; }
+.add-bot { margin-bottom: 0.6rem; }
+.practice-level { display: contents; }
+.practice-level select { flex: 1; }
 .join-prompt { max-width: 26rem; margin: 2rem auto; display: grid; gap: 0.8rem; }
 
 /* ---- Cards ---- */

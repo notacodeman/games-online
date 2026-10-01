@@ -5,7 +5,8 @@ import { el, $, api, store, seats, toast } from './util.js';
 import { unlock, isMuted, setMuted } from './sound.js';
 import { OnlineGame } from './online.js';
 import { PracticeGame } from './practice.js';
-import { showLobby, rulesForm } from './lobby.js';
+import { showLobby, rulesForm, botLevelSelect } from './lobby.js';
+import { DEFAULT_LEVEL } from '../lib/last-card/bot.js';
 import { GAMES, DEFAULT_GAME, TABLES, HOW_TO } from './games.js';
 import { cleanCode } from '../lib/store.js';
 
@@ -73,7 +74,7 @@ function showHome(message) {
         el('div.practice', {},
           el('h3', {}, 'Or practice against bots'),
           el('div.inline', {}, el('label.sr-only', { for: 'bots' }, 'Bots'), el('select', { id: 'bots' }),
-            el('button', { type: 'button', onclick: practice }, 'Play')),
+            el('span.practice-level'), el('button', { type: 'button', onclick: practice }, 'Play')),
           el('details.rules-details', {}, el('summary', {}, 'Practice rules'), el('div.practice-rules'))),
       ),
     ),
@@ -108,6 +109,9 @@ function showHome(message) {
     const saved = store.get('bots', 3);
     $('#bots', root).replaceChildren(...Array.from({ length: info.maxPlayers - 1 }, (_, i) =>
       el('option', { value: i + 1, selected: i + 1 === saved }, `${i + 1} bot${i ? 's' : ''}`)));
+    $('.practice-level', root).replaceChildren(info.bots
+      ? botLevelSelect(store.get('practiceLevel', DEFAULT_LEVEL), level => store.set('practiceLevel', level), { 'aria-label': 'Bot level' })
+      : '');
     const rules = practiceRules();
     $('.practice-rules', root).replaceChildren(rulesForm(info.ruleOptions, rules, next => store.set(`rules:${chosen}`, next)));
     $('.how h2', root).textContent = `How to play ${info.name}`;
@@ -152,9 +156,10 @@ function showHome(message) {
 
   function practice() {
     unlock();
-    const bots = Number($('#bots', root).value);
-    store.set('bots', bots);
-    startPractice(chosen, { name: myName(), bots, rules: practiceRules() });
+    const count = Number($('#bots', root).value);
+    store.set('bots', count);
+    const level = store.get('practiceLevel', DEFAULT_LEVEL);
+    startPractice(chosen, { name: myName(), bots: Array.from({ length: count }, () => level), rules: practiceRules() });
   }
 }
 
@@ -219,7 +224,16 @@ function openOnline(code, view = null) {
     const table = TABLES[v.game];
     if (!table) { showHome('This game type isn’t available any more.'); return; }
     teardown = v.phase === 'lobby'
-      ? showLobby(root, current, { onStart: show, onLeave: leave })
+      ? showLobby(root, current, {
+        onStart: show,
+        onLeave: leave,
+        // just the host and bots: play it in this browser and close the online lobby
+        onSolo: settings => {
+          current.send({ type: 'leave' }).catch(() => {});
+          seats.set(code, null);
+          startPractice(v.game, { name: myName(), ...settings });
+        },
+      })
       : table(root, current, {
         onLeave: leave,
         onPlayAgain: next => (next ? show() : current.send({ type: 'playAgain' }).catch(error => toast(error.message))),

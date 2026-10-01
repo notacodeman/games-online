@@ -5,10 +5,14 @@
 import { json, fail, readJson } from '../../../lib/api.js';
 import { gameFor, GAMES } from '../../../lib/games.js';
 import { createRoom, roomView, engineOf } from '../../../lib/room.js';
-import { makeCode, makeToken, sha256, insertGame, listPublicGames } from '../../../lib/store.js';
+import { makeCode, makeToken, sha256, insertGame, listPublicGames, maybeSweep } from '../../../lib/store.js';
 import { overLimit, limitMessage } from '../../../lib/limits.js';
 
-export async function onRequestGet({ env }) {
+// clears out idle games after the response is sent (at most every few minutes; see lib/store.js)
+const sweepLater = (env, waitUntil) => waitUntil(maybeSweep(env).catch(err => console.error('sweep failed', err)));
+
+export async function onRequestGet({ env, waitUntil }) {
+  sweepLater(env, waitUntil);
   const rows = await listPublicGames(env);
   return json({
     ok: true,
@@ -19,7 +23,8 @@ export async function onRequestGet({ env }) {
   });
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
+  sweepLater(env, waitUntil);
   const body = await readJson(request);
   if (!body) return fail('Expected the game, your name and the rules as JSON.');
   if (!gameFor(body.game)) return fail('Pick one of the games on the list.');

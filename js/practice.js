@@ -10,7 +10,9 @@ export class PracticeGame {
     this.engine = engine;
     this.state = engine.newGame('PRACTICE', rules, Date.now());
     this.playerId = engine.addPlayer(this.state, { name: name || 'You' }).id;
-    for (let i = 0; i < bots; i++) engine.applyAction(this.state, this.playerId, { type: 'addBot' }, Date.now());
+    // bots: how many, or one level per bot ('easy', 'medium', …)
+    const levels = Array.isArray(bots) ? bots : Array.from({ length: bots }, () => undefined);
+    for (const level of levels) engine.applyAction(this.state, this.playerId, { type: 'addBot', level }, Date.now());
     engine.applyAction(this.state, this.playerId, { type: 'start' }, Date.now());
     this.listeners = new Set();
     this.view = engine.viewFor(this.state, this.playerId, Date.now());

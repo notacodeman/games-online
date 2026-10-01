@@ -121,7 +121,7 @@ export function showTable(root, game, { onLeave, onPlayAgain }) {
       const current = view.phase === 'playing' && view.turn === p.id;
       const backs = Math.min(p.count, MAX_BACKS_SHOWN);
       return el(`div.seat${current ? '.current' : ''}`, {},
-        el('div.seat-name', {}, el('span.name', {}, p.name), p.bot ? el('span.tag', {}, 'bot') : null,
+        el('div.seat-name', {}, el('span.name', {}, p.name), p.bot ? el('span.tag', { title: `Bot, ${p.level || 'medium'} level` }, 'bot') : null,
           p.id === view.hostId ? el('span.tag', {}, 'host') : null),
         el('div.seat-cards', { 'aria-label': `${p.count} cards` },
           el('span.fan', { style: { '--n': backs } }, ...Array.from({ length: backs }, (_, i) => el('span.mini-back', { style: { '--i': i } }))),

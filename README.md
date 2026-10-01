@@ -11,7 +11,16 @@ Each game can also be practiced against bots entirely in the browser.
 
 **Last Card**: the UNO-style color-and-number game (the classic 108-card deck), 2–10 players. Official rules by
 default; the host can change cards dealt, score to play to (or one round), Wild Draw Four challenges, playing the
-drawn card, draw until playable, the Last card! penalty, stacking +2/+4, 7-0 hand swaps, jump-in, and a turn timer.
+drawn card, draw until playable, the Last card! penalty, stacking +2/+4, 7-0 hand swaps, jump-in, and a turn timer
+(on by default at 15 seconds; when it runs out the player draws and the turn moves on). The lobby shows the timer,
+score and cards dealt first; the rest are under "More rules".
+
+Bots come in four levels, set per bot in the lobby (and for all bots in practice): **Easy** (random plays half the
+time, forgetful), **Medium** (the original bot), **Hard** (tracks which color each player last drew on, keeps its
+strongest color on top, dumps points when someone is close to going out) and **Impossible** (sees every hand). In
+simulated games against three Medium bots, Easy won about 19% of rounds, Medium 25%, Hard 29% and Impossible 30%
+(one-on-one: 39 / 50 / 55 / 62%): the deal decides a lot in this game, so the levels feel different without being
+unbeatable. If the host starts a lobby with nobody but bots, the game runs in their browser like practice mode.
 It's called Last Card with its own neon card design rather than using the UNO name and look, which are Mattel
 trademarks.
 
@@ -38,8 +47,10 @@ round-over sounds. Made with the Web Audio API (no sound files). The Sound on/of
 ## How it works
 
 The server holds the whole game (every hand and the draw pile) in one D1 row and only ever sends each player their
-own view: their hand, and card counts for everyone else. Browsers poll `GET /api/games/<code>` about once a second
-(every 4 seconds in a background tab) and send moves to `POST /api/games/<code>/action`. Every write checks the
+own view: their hand, and card counts for everyone else. Browsers poll `GET /api/games/<code>` and send moves to
+`POST /api/games/<code>/action`. How often they poll depends on the game (`pollPace()` in each engine): every second
+when your turn is next or a bot is moving, every 2 seconds on your own turn, every 3 seconds otherwise, and slower in
+a background tab. A poll with nothing new gets a tiny `{ unchanged: true }` reply. Every write checks the
 version it read, so two moves at once can't overwrite each other.
 
 Pages Functions only run when called, so bots, bots catching a missed Last card! call, and the turn timer are
@@ -49,7 +60,9 @@ The `games` row also keeps a few columns copied out of the state on every save (
 player counts) so the public list is one small query.
 
 A player's seat is a random token kept in their browser (`localStorage`), stored on the server only as a SHA-256
-hash. Games untouched for 24 hours are deleted by an hourly clear-out started by ordinary requests.
+hash. Games are deleted after 15 minutes without a move (2 minutes once only bots are left, an hour after a game
+ends) by a clear-out that runs at most every 5 minutes, started by the start page's list and by creating a game (not
+by game polls, which would double the database calls).
 
 ## Files
 
@@ -63,7 +76,7 @@ Plain HTML, CSS and JavaScript (ES modules) with no build step.
 | `js/app.js` | Start page (join by code, public games, create a lobby, practice) and switching screens; `?g=CODE` in the URL |
 | `js/games.js` | The page's list of games: each one's table, extra lobby section and how-to-play notes |
 | `js/lobby.js` | The lobby (invite link, public/private, players, bots, start) and the rules form |
-| `js/online.js` | An online game: polling and sending moves |
+| `js/online.js` | An online game: polling (faster when something is about to happen) and sending moves |
 | `js/practice.js` | A practice game run in the browser, for any game |
 | `js/sound.js` | The sound effects (Web Audio) and the mute setting |
 | `js/dialogs.js` | The pick-one dialog (colors, players) |
@@ -75,7 +88,7 @@ Plain HTML, CSS and JavaScript (ES modules) with no build step.
 | `lib/room.js` | What the site adds around a game: which game, public or private, the list summary |
 | `lib/errors.js` | `GameError`: a refused move, shown to the player |
 | `lib/last-card/game.js` | Last Card's engine: deck, moves, card effects, scoring, bots' timing, each player's view |
-| `lib/last-card/bot.js` | How Last Card bots choose their moves |
+| `lib/last-card/bot.js` | How Last Card bots choose their moves, and the four difficulty levels |
 | `lib/last-card/rules.js` | Last Card's rule options, their official values and notes |
 | `lib/spy-words/game.js` | Spy Words' engine: teams, dealing the board and key, clues, guesses, the automatic team, each player's view |
 | `lib/spy-words/rules.js` | Spy Words' rule options |
@@ -100,7 +113,7 @@ Plain HTML, CSS and JavaScript (ES modules) with no build step.
 
 ## Tunables
 
-Named constants at the top of the files: bot thinking time and catch delay (`lib/last-card/game.js`), bot habits
+Named constants at the top of the files: bot thinking time and catch delay (`lib/last-card/game.js`), bot levels
 (`lib/last-card/bot.js`), poll rates (`js/online.js`), public-list refresh and height (`js/app.js`), game lifetime
 and how long a public game stays listed (`lib/store.js`), rate limits (`lib/limits.js`), log length
 (`js/last-card/table.js`), volume (`js/sound.js`).

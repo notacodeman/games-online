@@ -13,7 +13,7 @@ export async function onRequestGet({ env, request, params }) {
   if (!state) {
     // only wrong codes count here, so polling a real game is never limited but guessing codes is
     if (await overLimit(env, request, 'miss')) return fail(limitMessage('miss'), 429);
-    return fail('No game with that code. It may have ended over a day ago.', 404);
+    return fail('No game with that code. Games are cleared away 15 minutes after the last move, or an hour after they end.', 404);
   }
   const now = Date.now();
   const readVersion = state.version;
